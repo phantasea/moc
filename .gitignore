@@ -1,2 +1,10 @@
 *.o
 tags
+.deps/
+libtool
+mocp
+stamp-h1
+config.example
+config.h
+config.log
+config.status
