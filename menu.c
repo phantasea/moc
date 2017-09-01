@@ -65,7 +65,9 @@ static void draw_item (const struct menu *menu, const struct menu_item *mi,
 			wattrset (menu->win, menu->info_attr_marked);
 		else
 			wattrset (menu->win, menu->info_attr_normal);
+		//mod by simone
 		xwprintw (menu->win, "%*d ", number_space - 1, mi->num + 1);
+		//xwprintw (menu->win, "%*d • ", number_space - 1, mi->num + 1);
 	}
 
 	/* Set attributes */
@@ -449,6 +451,54 @@ void menu_driver (struct menu *menu, const enum menu_request req)
 		menu->top = get_item_relative (menu->selected,
 				-menu->height + 1);
 	}
+    //add by simone +++++++
+    else if (req == REQ_TOP_VIS) {
+		menu->selected = menu->top;
+    }
+    else if (req == REQ_MID_VIS) {
+        int diff = menu->height - (menu->selected->num - menu->top->num) - 1;
+        if (diff > (menu->last->num - menu->selected->num)) {
+            diff = (menu->last->num - menu->top->num) / 2;
+        }
+        else {
+            diff = menu->height / 2;
+        }
+
+        menu->selected = get_item_relative (menu->top, diff);
+    }
+    else if (req == REQ_BOT_VIS) {
+        if (menu->selected->num == menu->last->num) {
+            return;
+        }
+
+        int diff = menu->height - (menu->selected->num - menu->top->num) - 1;
+        if (diff == 0) {
+            return;
+        }
+
+        menu->selected = get_item_relative (menu->selected, diff);
+    }
+    else if (req == REQ_SCROLL_UP) {
+        if (menu->top == menu->items) {
+            return;
+        }
+
+        menu->top = menu->top->prev;
+        if (menu->selected->num == (menu->top->num + menu->height)) {
+            menu->selected = menu->selected->prev;
+        }
+    }
+    else if (req == REQ_SCROLL_DOWN) {
+        if ((menu->top->num + menu->height) > menu->last->num) {
+            return;
+        }
+
+        if (menu->selected->num == menu->top->num) {
+            menu->selected = menu->top->next;
+        }
+        menu->top = menu->top->next;
+    }
+    //add by simone -------
 }
 
 /* Return the index of the currently selected item. */

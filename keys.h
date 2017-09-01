@@ -15,6 +15,13 @@ enum key_cmd
 	KEY_CMD_MENU_PPAGE,
 	KEY_CMD_MENU_FIRST,
 	KEY_CMD_MENU_LAST,
+    //add by simone +++++++
+	KEY_CMD_MENU_TOP,
+	KEY_CMD_MENU_MID,
+	KEY_CMD_MENU_BOT,
+    KEY_CMD_MENU_SUP,
+    KEY_CMD_MENU_SDN,
+    //add by simone -------
 	KEY_CMD_QUIT,
 	KEY_CMD_STOP,
 	KEY_CMD_NEXT,

@@ -121,6 +121,48 @@ static struct command commands[] = {
 		{ KEY_END, -1 },
 		1
 	},
+    //add by simone +++++++
+    {
+        KEY_CMD_MENU_TOP,
+		"menu_top_item",
+		"Move to the top visible item in the menu",
+		CON_MENU,
+		{ 'H', -1 },
+		1
+	},
+    {
+        KEY_CMD_MENU_MID,
+		"menu_mid_item",
+		"Move to the middle visible item in the menu",
+		CON_MENU,
+		{ 'M', -1 },
+		1
+	},
+    {
+        KEY_CMD_MENU_BOT,
+		"menu_bot_item",
+		"Move to the bottom visible item in the menu",
+		CON_MENU,
+		{ 'L', -1 },
+		1
+	},
+    {
+        KEY_CMD_MENU_SUP,
+		"menu_scroll_up",
+		"scroll up the menu",
+		CON_MENU,
+		{ 'K', -1 },
+		1
+	},
+    {
+        KEY_CMD_MENU_SDN,
+		"menu_scroll_down",
+		"scroll down the menu",
+		CON_MENU,
+		{ 'J', -1 },
+		1
+	},
+    //add by simone -------
 	{
 		KEY_CMD_QUIT,
 		"quit",

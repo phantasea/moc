@@ -23,7 +23,14 @@ enum menu_request
 	REQ_PGUP,
 	REQ_PGDOWN,
 	REQ_TOP,
-	REQ_BOTTOM
+	REQ_BOTTOM,
+    //add by simone +++++++
+    REQ_TOP_VIS,
+    REQ_MID_VIS,
+    REQ_BOT_VIS,
+    REQ_SCROLL_UP,
+    REQ_SCROLL_DOWN,
+    //add by simone -------
 };
 
 enum menu_align

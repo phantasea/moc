@@ -1339,6 +1339,23 @@ static void side_menu_cmd (struct side_menu *m, const enum key_cmd cmd)
 			case KEY_CMD_MENU_LAST:
 				menu_driver (m->menu.list.main, REQ_BOTTOM);
 				break;
+			//add by simone +++++++
+			case KEY_CMD_MENU_TOP:
+				menu_driver (m->menu.list.main, REQ_TOP_VIS);
+				break;
+			case KEY_CMD_MENU_MID:
+				menu_driver (m->menu.list.main, REQ_MID_VIS);
+				break;
+			case KEY_CMD_MENU_BOT:
+				menu_driver (m->menu.list.main, REQ_BOT_VIS);
+				break;
+			case KEY_CMD_MENU_SUP:
+				menu_driver (m->menu.list.main, REQ_SCROLL_UP);
+				break;
+			case KEY_CMD_MENU_SDN:
+				menu_driver (m->menu.list.main, REQ_SCROLL_DOWN);
+				break;
+			//add by simone -------
 			default:
 				abort ();
 		}

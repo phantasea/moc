@@ -1639,9 +1639,22 @@ static char *dir_up (const char *path)
 	return dir;
 }
 
+static void seek (const int sec);  //add by simone
 static void go_dir_up ()
 {
 	char *dir;
+
+    //add by simone +++++++
+	enum file_type type = iface_curritem_get_type();
+	char *file = iface_get_curr_file();
+
+    if (curr_file.file && (file_type(curr_file.file) == F_SOUND) 
+            && (type == F_SOUND) && file && !strcmp(file, curr_file.file))
+    {
+        seek(-options_get_int("SeekTime"));
+        return;
+    }
+    //add by simone -------
 
 	dir = dir_up (cwd);
 	go_to_dir (dir, 0);
@@ -1719,6 +1732,7 @@ static void play_it (const char *file)
 }
 
 /* Action when the user selected a file. */
+static void seek (const int sec);  //add by simone
 static void go_file ()
 {
 	enum file_type type = iface_curritem_get_type ();
@@ -1727,8 +1741,15 @@ static void go_file ()
 	if (!file)
 		return;
 
-	if (type == F_SOUND || type == F_URL)
+    //mod by simone +++++++
+	if (type == F_SOUND)
+        if (curr_file.file && file_type(curr_file.file) == F_SOUND && !strcmp(file, curr_file.file))
+            seek(options_get_int ("SeekTime"));
+        else
+            play_it(file);
+    else if (type == F_URL)
 		play_it (file);
+    //mod by simone -------
 	else if (type == F_DIR && iface_in_dir_menu()) {
 		if (!strcmp(file, ".."))
 			go_dir_up ();
@@ -3160,6 +3181,13 @@ static void menu_key (const struct iface_key *k)
 			case KEY_CMD_MENU_PPAGE:
 			case KEY_CMD_MENU_FIRST:
 			case KEY_CMD_MENU_LAST:
+			//add by simone +++++++
+			case KEY_CMD_MENU_TOP:
+			case KEY_CMD_MENU_MID:
+			case KEY_CMD_MENU_BOT:
+			case KEY_CMD_MENU_SUP:
+			case KEY_CMD_MENU_SDN:
+			//add by simone -------
 				iface_menu_key (cmd);
 				last_menu_move_time = time (NULL);
 				break;
