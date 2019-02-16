@@ -72,6 +72,7 @@
 #endif
 #define HISTORY_SIZE	50
 
+#define LINES_INFO_WIN  2    //add by chris
 
 /* TODO: removing/adding a char to the entry may increase width of the text
  * by more than one column. */
@@ -757,7 +758,7 @@ static void entry_add_text_to_history (struct entry *e)
 /* Return the list menu height inside the side menu. */
 static int side_menu_get_menu_height (const struct side_menu *m)
 {
-	if (m->posy + m->height == LINES - 4)
+	if (m->posy + m->height == LINES - LINES_INFO_WIN)
 		return m->height - 1;
 	return m->height - 2;
 }
@@ -902,7 +903,7 @@ static bool parse_layout (struct main_win_layout *l, lists_t_strs *fmt)
 	l->menus[0].x = 0;
 	l->menus[0].y = 0;
 	l->menus[0].width = COLS;
-	l->menus[0].height = LINES - 4;
+	l->menus[0].height = LINES - LINES_INFO_WIN;
 	l->menus[1] = l->menus[0];
 	l->menus[2] = l->menus[0];
 
@@ -923,7 +924,7 @@ static bool parse_layout (struct main_win_layout *l, lists_t_strs *fmt)
 			logit ("Coordinate parse error when parsing X");
 			goto err;
 		}
-		if (!parse_layout_coordinate (lists_strs_at (format, 2), &p.y, LINES - 4)) {
+		if (!parse_layout_coordinate (lists_strs_at (format, 2), &p.y, LINES - LINES_INFO_WIN)) {
 			logit ("Coordinate parse error when parsing Y");
 			goto err;
 		}
@@ -931,7 +932,7 @@ static bool parse_layout (struct main_win_layout *l, lists_t_strs *fmt)
 			logit ("Coordinate parse error when parsing width");
 			goto err;
 		}
-		if (!parse_layout_coordinate (lists_strs_at (format, 4), &p.height, LINES - 4)) {
+		if (!parse_layout_coordinate (lists_strs_at (format, 4), &p.height, LINES - LINES_INFO_WIN)) {
 			logit ("Coordinate parse error when parsing height");
 			goto err;
 		}
@@ -939,7 +940,7 @@ static bool parse_layout (struct main_win_layout *l, lists_t_strs *fmt)
 		if (p.width == LAYOUT_SIZE_FILL)
 			p.width = COLS - p.x;
 		if (p.height == LAYOUT_SIZE_FILL)
-			p.height = LINES - 4 - p.y;
+			p.height = LINES - LINES_INFO_WIN - p.y;
 
 		if (p.width < 15) {
 			logit ("Width is less than 15");
@@ -953,8 +954,8 @@ static bool parse_layout (struct main_win_layout *l, lists_t_strs *fmt)
 			logit ("X + width is more than COLS (%d)", COLS);
 			goto err;
 		}
-		if (p.y + p.height > LINES - 4) {
-			logit ("Y + height is more than LINES - 4 (%d)", LINES - 4);
+		if (p.y + p.height > LINES - LINES_INFO_WIN) {
+			logit ("Y + height is more than LINES - LINES_INFO_WIN (%d)", LINES - LINES_INFO_WIN);
 			goto err;
 		}
 
@@ -982,7 +983,7 @@ static void main_win_init (struct main_win *w, lists_t_strs *layout_fmt)
 
 	assert (w != NULL);
 
-	w->win = newwin (LINES - 4, COLS, 0, 0);
+	w->win = newwin (LINES - LINES_INFO_WIN, COLS, 0, 0);
 	wbkgd (w->win, get_color(CLR_BACKGROUND));
 	nodelay (w->win, TRUE);
 	keypad (w->win, TRUE);
@@ -1263,7 +1264,7 @@ static void side_menu_draw_frame (const struct side_menu *m)
 	wmove (m->win, m->posy + 1, m->posx + m->width - 1);
 	wvline (m->win, lines.vert, m->height - 1);
 
-	if (m->posy + m->height < LINES - 4) {
+	if (m->posy + m->height < LINES - LINES_INFO_WIN) {
 
 		/* bottom left corner */
 		wmove (m->win, m->posy + m->height - 1, m->posx);
@@ -1277,7 +1278,7 @@ static void side_menu_draw_frame (const struct side_menu *m)
 		waddch (m->win, lines.lrcorn);
 	}
 
-	/* The title */
+	/* The title chris*/
 	if (title) {
 		wmove (m->win, m->posy, m->posx + m->width / 2
 				- strwidth(title) / 2 - 1);
@@ -1778,7 +1779,7 @@ static void main_win_draw_help_screen (const struct main_win *w)
 		xmvwaddstr (w->win, 0, COLS/2 - (sizeof("...MORE...")-1)/2,
 				"...MORE...");
 	}
-	wmove (w->win, 1, 0);
+	wmove (w->win, 0, 0);
 	wattrset (w->win, get_color(CLR_LEGEND));
 	for (i = w->help_screen_top; i < max_lines && i < help_lines; i++) {
 		xwaddstr (w->win, help[i]);
@@ -1786,7 +1787,7 @@ static void main_win_draw_help_screen (const struct main_win *w)
 	}
 	if (i != help_lines) {
 		wattrset (w->win, get_color(CLR_MESSAGE));
-		xmvwaddstr (w->win, LINES-5,
+		xmvwaddstr (w->win, LINES-(LINES_INFO_WIN+1),
 				COLS/2 - (sizeof("...MORE...")-1)/2,
 				"...MORE...");
 	}
@@ -1813,7 +1814,7 @@ static void main_win_draw_lyrics_screen (const struct main_win *w)
 		xmvwaddstr (w->win, 0, COLS/2 - (sizeof("...MORE...")-1)/2,
 				"...MORE...");
 	}
-	wmove (w->win, 1, 0);
+	wmove (w->win, 0, 0);
 	wattrset (w->win, get_color(CLR_LEGEND));
 	getmaxyx (w->win, height, width);
 	lyrics_array = lyrics_format (height, width);
@@ -1821,7 +1822,7 @@ static void main_win_draw_lyrics_screen (const struct main_win *w)
 		xwaddstr (w->win, lists_strs_at (lyrics_array, i));
 	if (i != lists_strs_size (lyrics_array)) {
 		wattrset (w->win, get_color(CLR_MESSAGE));
-		xmvwaddstr (w->win, LINES-5,
+		xmvwaddstr (w->win, LINES-(LINES_INFO_WIN+1),
 				COLS/2 - (sizeof("...MORE...")-1)/2,
 				"...MORE...");
 	}
@@ -1959,7 +1960,7 @@ static void main_win_create_themes_menu (struct main_win *w)
 	p.x = 0;
 	p.y = 0;
 	p.width = COLS;
-	p.height = LINES - 4;
+	p.height = LINES - LINES_INFO_WIN;
 
 	side_menu_init (&w->menus[2], MENU_THEMES, w->win, &p);
 	side_menu_set_title (&w->menus[2], "Themes");
@@ -2294,7 +2295,7 @@ static void main_win_resize (struct main_win *w)
 	assert (w != NULL);
 
 	keypad (w->win, TRUE);
-	wresize (w->win, LINES - 4, COLS);
+	wresize (w->win, LINES - LINES_INFO_WIN, COLS);
 	werase (w->win);
 
 	res = parse_layout (&l, w->layout_fmt);
@@ -2309,7 +2310,7 @@ static void main_win_resize (struct main_win *w)
 		p.x = 0;
 		p.y = 0;
 		p.width = COLS;
-		p.height = LINES - 4;
+		p.height = LINES - LINES_INFO_WIN;
 
 		side_menu_resize (&w->menus[2], &p);
 	}
@@ -2711,7 +2712,7 @@ static void info_win_init (struct info_win *w)
 {
 	assert (w != NULL);
 
-	w->win = newwin (4, COLS, LINES - 4, 0);
+	w->win = newwin (LINES_INFO_WIN, COLS, LINES - LINES_INFO_WIN, 0);
 	wbkgd (w->win, get_color(CLR_BACKGROUND));
 
 	w->queued_message_head = NULL;
@@ -2782,18 +2783,20 @@ static void info_win_update_curs (const struct info_win *w)
 
 static void info_win_set_mixer_name (struct info_win *w, const char *name)
 {
+    return; //add by chris
 	assert (w != NULL);
 	assert (name != NULL);
 
 	bar_set_title (&w->mixer_bar, name);
 	if (!w->in_entry && !w->too_small) {
-		bar_draw (&w->mixer_bar, w->win, COLS - 37, 0);
+		bar_draw (&w->mixer_bar, w->win, COLS - 42, 0);
 		info_win_update_curs (w);
 	}
 }
 
 static void info_win_draw_status (const struct info_win *w)
 {
+    return; //add by chris
 	assert (w != NULL);
 
 	if (!w->in_entry && !w->too_small) {
@@ -2817,6 +2820,7 @@ static void info_win_set_status (struct info_win *w, const char *msg)
 
 static void info_win_draw_files_in_queue (const struct info_win *w)
 {
+    return; //add by chris
 	const int hstart = 5 + sizeof(w->status_msg) + 2;
 
 	assert (w != NULL);
@@ -2854,13 +2858,13 @@ static void info_win_draw_state (const struct info_win *w)
 
 	switch (w->state_play) {
 		case STATE_PLAY:
-			state_symbol = " >";
+			state_symbol = ">";
 			break;
 		case STATE_STOP:
-			state_symbol = "[]";
+			state_symbol = ":";
 			break;
 		case STATE_PAUSE:
-			state_symbol = "||";
+			state_symbol = "|";
 			break;
 		default:
 			abort (); /* BUG */
@@ -2868,7 +2872,7 @@ static void info_win_draw_state (const struct info_win *w)
 
 	if (!w->too_small) {
 		wattrset (w->win, get_color(CLR_STATE));
-		xmvwaddstr (w->win, 1, 1, state_symbol);
+		xmvwaddstr (w->win, 0, main_win.menus[0].width, state_symbol);
 	}
 
 	info_win_update_curs (w);
@@ -2877,6 +2881,8 @@ static void info_win_draw_state (const struct info_win *w)
 /* Draw the title or the message (informative or error). */
 static void info_win_draw_title (const struct info_win *w)
 {
+    return; //add by chris
+
 	assert (w != NULL);
 
 	if (!w->too_small) {
@@ -2889,12 +2895,12 @@ static void info_win_draw_title (const struct info_win *w)
 			wattrset (w->win, w->current_message->type == ERROR_MSG
 			                  ? get_color (CLR_ERROR)
 			                  : get_color (CLR_MESSAGE));
-			xmvwaddnstr (w->win, 1, 4, w->current_message->msg, COLS - 5);
+			xmvwaddnstr (w->win, 0, 4, w->current_message->msg, COLS - 5);
 		}
 		else
 		{
 			wattrset (w->win, get_color (CLR_TITLE));
-			xmvwaddnstr (w->win, 1, 4, w->title ? w->title : "", COLS - 5);
+			xmvwaddnstr (w->win, 0, 4, w->title ? w->title : "", COLS - 5);
 		}
 	}
 
@@ -2920,29 +2926,29 @@ static void info_win_draw_time (const struct info_win *w)
 	assert (w != NULL);
 
 	if (!w->too_small) {
-		/* current time */
-		sec_to_min (time_str, w->curr_time != -1 ? w->curr_time : 0);
-		wattrset (w->win, get_color(CLR_TIME_CURRENT));
-		xmvwaddstr (w->win, 2, 1, time_str);
+		///* current time */
+		//sec_to_min (time_str, w->curr_time != -1 ? w->curr_time : 0);
+		//wattrset (w->win, get_color(CLR_TIME_CURRENT));
+		//xmvwaddstr (w->win, 2, 1, time_str);
 
-		/* time left */
-		if (w->total_time > 0 && w->curr_time >= 0
-				&& w->total_time >= w->curr_time) {
-			sec_to_min (time_str, w->total_time - w->curr_time);
-			wmove (w->win, 2, 7);
-			wattrset (w->win, get_color(CLR_TIME_LEFT));
-			xwaddstr (w->win, time_str);
-		}
-		else
-			xmvwaddstr (w->win, 2, 7, "     ");
+		///* time left */
+		//if (w->total_time > 0 && w->curr_time >= 0
+		//		&& w->total_time >= w->curr_time) {
+		//	sec_to_min (time_str, w->total_time - w->curr_time);
+		//	wmove (w->win, 2, 7);
+		//	wattrset (w->win, get_color(CLR_TIME_LEFT));
+		//	xwaddstr (w->win, time_str);
+		//}
+		//else
+		//	xmvwaddstr (w->win, 2, 7, "     ");
 
-		/* total time */
-		sec_to_min (time_str, w->total_time != -1 ? w->total_time : 0);
-		wmove (w->win, 2, 14);
-		wattrset (w->win, get_color(CLR_TIME_TOTAL));
-		xwaddstr (w->win, time_str);
+		///* total time */
+		//sec_to_min (time_str, w->total_time != -1 ? w->total_time : 0);
+		//wmove (w->win, 2, 14);
+		//wattrset (w->win, get_color(CLR_TIME_TOTAL));
+		//xwaddstr (w->win, time_str);
 
-		bar_draw (&w->time_bar, w->win, 2, 3);
+		bar_draw (&w->time_bar, w->win, 2, 1);
 	}
 	info_win_update_curs (w);
 }
@@ -2952,7 +2958,7 @@ static void info_win_draw_block (const struct info_win *w)
 	assert (w != NULL);
 
 	if (!w->too_small)
-		bar_draw (&w->time_bar, w->win, 2, 3);
+		bar_draw (&w->time_bar, w->win, 2, 1);
 	info_win_update_curs (w);
 }
 
@@ -3053,6 +3059,7 @@ static void info_win_set_played_title (struct info_win *w, const char *title)
 
 static void info_win_draw_rate (const struct info_win *w)
 {
+    return; //add by chris
 	assert (w != NULL);
 
 	wattrset (w->win, get_color(CLR_SOUND_PARAMS));
@@ -3065,6 +3072,7 @@ static void info_win_draw_rate (const struct info_win *w)
 
 static void info_win_draw_bitrate (const struct info_win *w)
 {
+    return; //add by chris
 	assert (w != NULL);
 
 	if (!w->too_small) {
@@ -3102,7 +3110,7 @@ static void info_win_set_mixer_value (struct info_win *w, const int value)
 
 	bar_set_fill (&w->mixer_bar, (double) value);
 	if (!w->in_entry && !w->too_small)
-		bar_draw (&w->mixer_bar, w->win, COLS - 37, 0);
+		bar_draw (&w->mixer_bar, w->win, COLS - 42, 0);
 }
 
 /* Draw a switch that is turned on or off in form of [TITLE]. */
@@ -3123,6 +3131,8 @@ static void info_win_draw_switch (const struct info_win *w, const int posx,
 
 static void info_win_draw_options_state (const struct info_win *w)
 {
+    return;  //add by chris
+
 	assert (w != NULL);
 
 	info_win_draw_switch (w, 38, 2, "STEREO", w->state_stereo);
@@ -3370,6 +3380,7 @@ static void sec_to_min_plist (char *buff, const int seconds)
 
 static void info_win_draw_files_time (const struct info_win *w)
 {
+    return; //add by chris
 	assert (w != NULL);
 
 	if (!w->in_entry && !w->too_small) {
@@ -3415,31 +3426,31 @@ static void info_win_draw_static_elements (const struct info_win *w)
 				lines.ltee, lines.rtee, lines.llcorn, lines.lrcorn);
 
 		/* mixer frame */
-		mvwaddch (w->win, 0, COLS - 38, lines.rtee);
-		mvwaddch (w->win, 0, COLS - 17, lines.ltee);
+		mvwaddch (w->win, 0, COLS - 43, lines.rtee);
+		mvwaddch (w->win, 0, COLS - 22, lines.ltee);
 
 		/* playlist time frame */
-		mvwaddch (w->win, 0, COLS - 13, lines.rtee);
-		mvwaddch (w->win, 0, COLS - 2, lines.ltee);
+		//mvwaddch (w->win, 0, COLS - 13, lines.rtee);
+		//mvwaddch (w->win, 0, COLS - 2, lines.ltee);
 
 		/* total time frames */
-		wattrset (w->win, get_color(CLR_TIME_TOTAL_FRAMES));
-		mvwaddch (w->win, 2, 13, '[');
-		mvwaddch (w->win, 2, 19, ']');
+		//wattrset (w->win, get_color(CLR_TIME_TOTAL_FRAMES));
+		//mvwaddch (w->win, 2, 13, '[');
+		//mvwaddch (w->win, 2, 19, ']');
 
 		/* time bar frame */
 		wattrset (w->win, get_color(CLR_FRAME));
-		mvwaddch (w->win, 3, COLS - 2, lines.ltee);
-		mvwaddch (w->win, 3, 1, lines.rtee);
+		mvwaddch (w->win, 1, COLS - 2, lines.ltee);
+		mvwaddch (w->win, 1, 1, lines.rtee);
 
 		/* status line frame */
-		mvwaddch (w->win, 0, 5, lines.rtee);
-		mvwaddch (w->win, 0, 5 + sizeof(w->status_msg), lines.ltee);
+		//mvwaddch (w->win, 0, 5, lines.rtee);
+		//mvwaddch (w->win, 0, 5 + sizeof(w->status_msg), lines.ltee);
 
 		/* rate and bitrate units */
-		wmove (w->win, 2, 25);
-		wattrset (w->win, get_color(CLR_LEGEND));
-		xwaddstr (w->win, "kHz	 kbps");
+		//wmove (w->win, 2, 25);
+		//wattrset (w->win, get_color(CLR_LEGEND));
+		//xwaddstr (w->win, "kHz	 kbps");
 	}
 
 	info_win_update_curs (w);
@@ -3465,9 +3476,9 @@ static void info_win_draw (const struct info_win *w)
 		if (w->in_entry)
 			entry_draw (&w->entry, w->win, 1, 0);
 		else
-			bar_draw (&w->mixer_bar, w->win, COLS - 37, 0);
+			bar_draw (&w->mixer_bar, w->win, COLS - 42, 0);
 
-		bar_draw (&w->time_bar, w->win, 2, 3);
+		bar_draw (&w->time_bar, w->win, 2, 1);
 	}
 	info_win_update_curs (w);
 }
@@ -3623,8 +3634,8 @@ static void info_win_resize (struct info_win *w)
 {
 	assert (w != NULL);
 	keypad (w->win, TRUE);
-	wresize (w->win, 4, COLS);
-	mvwin (w->win, LINES - 4, 0);
+	wresize (w->win, LINES_INFO_WIN, COLS);
+	mvwin (w->win, LINES - LINES_INFO_WIN, 0);
 	werase (w->win);
 
 	bar_resize (&w->mixer_bar, 20);
