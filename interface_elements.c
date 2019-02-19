@@ -217,17 +217,6 @@ struct queued_message
 	void *data;
 };
 
-//sim1
-static int playlist_menu_width()
-{
-    return main_win.menus[1].width;
-}
-
-static int dir_menu_width()
-{
-    return main_win.menus[0].width;
-}
-
 static struct info_win
 {
 	WINDOW *win;
@@ -305,6 +294,34 @@ static struct
 	chtype rtee;	/* right tee */
 	chtype ltee;	/* left tee */
 } lines;
+
+//add by sim1
+static void info_win_draw (const struct info_win *w);
+static void bar_init (struct bar *b, const int width, const char *title,
+		const int show_val, const int show_pct,
+		const int fill_color, const int empty_color);
+
+static int dir_menu_width()
+{
+    return main_win.menus[0].width;
+}
+
+static int playlist_menu_width()
+{
+    return main_win.menus[1].width;
+}
+
+static int mixer_bar_width()
+{
+    return main_win.menus[1].width / 3;
+}
+
+static void mixer_bar_upd(struct info_win *w)
+{
+	bar_init (&w->mixer_bar, mixer_bar_width(), "", 1, 1,
+	          get_color(CLR_MIXER_BAR_FILL),
+	          get_color(CLR_MIXER_BAR_EMPTY));
+}
 
 static void entry_history_init (struct entry_history *h)
 {
@@ -2281,6 +2298,10 @@ static void main_win_use_layout (struct main_win *w, lists_t_strs *layout_fmt)
 	side_menu_resize (&w->menus[1], &l.menus[1]);
 
 	main_win_draw (w);
+
+    //add by sim1
+    mixer_bar_upd (&info_win);
+	info_win_draw (&info_win);
 }
 
 static void validate_layouts ()
@@ -2565,10 +2586,11 @@ static void check_term_size (struct main_win *mw, struct info_win *iw)
 	mw->too_small = iw->too_small = COLS < 59 || LINES < 7;
 }
 
+#define BAR_TITLE_LEN 3
 /* Update the title with the current fill. */
 static void bar_update_title (struct bar *b)
 {
-	char pct[8];
+	char pct[BAR_TITLE_LEN + 1];
 
 	assert (b != NULL);
 	assert (b->show_val);
@@ -2576,11 +2598,11 @@ static void bar_update_title (struct bar *b)
 	if (!b->show_pct)
 		sprintf (b->title, "%*s", b->width, b->orig_title);
 	else {
-		sprintf (b->title, "%*s", b->width - 7, b->orig_title);
-		strcpy (pct, " 100%  ");
+		sprintf (b->title, "%*s", b->width - BAR_TITLE_LEN, b->orig_title);
+		strcpy (pct, "100");
 		if (b->filled < 99.99)
-			snprintf (pct, sizeof (pct), "  %02.0f%%  ", b->filled);
-		strncpy (&b->title[b->width - 7], pct, strlen (pct));
+			snprintf (pct, sizeof (pct), "%02.0f%%", b->filled);
+		strncpy (&b->title[b->width - BAR_TITLE_LEN], pct, strlen (pct));
 	}
 }
 
@@ -2614,6 +2636,7 @@ static void bar_init (struct bar *b, const int width, const char *title,
 	if (show_val) {
 		b->orig_title = xmalloc (b->width + 1);
 		bar_set_title (b, title);
+		b->title[b->width] = 0;  //add by sim1
 	} else {
 		b->orig_title = NULL;
 		memset (b->title, ' ', b->width);
@@ -2666,7 +2689,10 @@ static void bar_resize (struct bar *b, const int width)
 	b->width = width;
 
 	if (b->show_val)
+    {
 		bar_update_title (b);
+		b->title[b->width] = 0;  //add by sim1
+    }
 	else {
 		memset (b->title, ' ', b->width);
 		b->title[b->width] = 0;
@@ -2764,7 +2790,7 @@ static void info_win_init (struct info_win *w)
 
 	set_startup_message (w);
 
-	bar_init (&w->mixer_bar, 20, "", 1, 1,
+	bar_init (&w->mixer_bar, mixer_bar_width(), "", 1, 1,
 	          get_color(CLR_MIXER_BAR_FILL),
 	          get_color(CLR_MIXER_BAR_EMPTY));
 	bar_init (&w->time_bar, COLS - 4, "", 1,
@@ -2800,12 +2826,14 @@ static void info_win_set_mixer_name (struct info_win *w, const char *name)
 {
     return; //add by chris
 
+    int hstart = COLS - playlist_menu_width()/2 - mixer_bar_width()/2 + 1;
+
 	assert (w != NULL);
 	assert (name != NULL);
 
 	bar_set_title (&w->mixer_bar, name);
 	if (!w->in_entry && !w->too_small) {
-		bar_draw (&w->mixer_bar, w->win, COLS-playlist_menu_width()/2-9, 0);
+		bar_draw (&w->mixer_bar, w->win, hstart, 0);
 		info_win_update_curs (w);
 	}
 }
@@ -2837,32 +2865,19 @@ static void info_win_set_status (struct info_win *w, const char *msg)
 //sim1
 static void info_win_draw_files_in_queue (const struct info_win *w)
 {
-	//const int hstart = 5 + sizeof(w->status_msg) + 2;
-    int hstart = dir_menu_width() + 13;
+    int hstart = dir_menu_width()/3*2 - 1;
     if (curr_layout == 2) {
-        hstart = dir_menu_width()/2 + 14;
+        hstart = dir_menu_width()/9*8 - 1;
     }
 
 	assert (w != NULL);
 
 	if(!w->in_entry && !w->too_small) {
-        /***********************
-		if (w->files_in_queue) {
-			wattrset (w->win, get_color(CLR_STATUS));
-			mvwaddch (w->win, 0, hstart, lines.rtee);
-			xwprintw (w->win, "Q:%3d", w->files_in_queue);
-			waddch (w->win, lines.ltee);
-		}
-		else {
-			wattrset (w->win, get_color(CLR_FRAME));
-			mvwhline (w->win, 0, hstart, lines.horiz, 9);
-		}
-        ***********************/
-
 		if (w->files_in_queue) {
 			wattrset (w->win, get_color(CLR_STATUS));
             wmove (w->win, 0, hstart);
             xwprintw (w->win, "[%02d]", w->files_in_queue);
+            //xwprintw (w->win, "[Q:%02d]", w->files_in_queue);
 		}
 		else {
 			wattrset (w->win, get_color(CLR_FRAME));
@@ -2887,9 +2902,9 @@ static void info_win_draw_state (const struct info_win *w)
 {
 	const char *state_symbol;
 
-    int hstart = COLS - playlist_menu_width() - 1;
+    int hstart = dir_menu_width() - 1;
     if (curr_layout == 2) {
-        hstart = dir_menu_width()/4;
+        hstart = dir_menu_width()/6 - 1;
     }
 
 	assert (w != NULL);
@@ -2964,10 +2979,10 @@ static void info_win_draw_time (const struct info_win *w)
 	assert (w != NULL);
 
 	if (!w->too_small) {
-		///* current time */
-		//sec_to_min (time_str, w->curr_time != -1 ? w->curr_time : 0);
-		//wattrset (w->win, get_color(CLR_TIME_CURRENT));
-		//xmvwaddstr (w->win, 2, 1, time_str);
+		//add by sim1
+		sec_to_min (time_str, w->curr_time != -1 ? w->curr_time : 0);
+		wattrset (w->win, get_color(CLR_TIME_CURRENT));
+		xmvwaddstr (w->win, 0, COLS-6, time_str);
 
 		///* time left */
 		//if (w->total_time > 0 && w->curr_time >= 0
@@ -3147,7 +3162,7 @@ static void info_win_set_mixer_value (struct info_win *w, const int value)
 {
 	assert (w != NULL);
 
-    int hstart = COLS - playlist_menu_width()/2 - 9;
+    int hstart = COLS - playlist_menu_width()/2 - mixer_bar_width()/2 + 1;
 
 	bar_set_fill (&w->mixer_bar, (double) value);
 	if (!w->in_entry && !w->too_small)
@@ -3186,9 +3201,9 @@ static void info_win_draw_options_state (const struct info_win *w)
 {
 	assert (w != NULL);
 
-    int hstart = dir_menu_width()/2 - 2;
+    int hstart = dir_menu_width()/3 - 1;
     if (curr_layout == 2) {
-        hstart = dir_menu_width()/2 - 15;
+        hstart = dir_menu_width()/9*7 - 1;
     }
 
 	//info_win_draw_switch (w, 38, 2, "STEREO", w->state_stereo);
@@ -3476,7 +3491,7 @@ static void info_win_draw_static_elements (const struct info_win *w)
 {
 	assert (w != NULL);
 
-    int hstart = COLS - playlist_menu_width()/2 - 10;
+    int hstart = COLS - playlist_menu_width()/2 - mixer_bar_width()/2;
 
 	if (!w->too_small) {
 		/* window frame */
@@ -3488,7 +3503,7 @@ static void info_win_draw_static_elements (const struct info_win *w)
 		//mvwaddch (w->win, 0, COLS - 43, '|');
 		//mvwaddch (w->win, 0, COLS - 22, '|');
 		mvwaddch (w->win, 0, hstart, '|');
-		mvwaddch (w->win, 0, hstart + 21, '|');
+		mvwaddch (w->win, 0, hstart + mixer_bar_width() + 1, '|');
 
 		/* playlist time frame */
 		//mvwaddch (w->win, 0, COLS - 13, lines.rtee);
@@ -3520,22 +3535,22 @@ static void info_win_draw_static_elements (const struct info_win *w)
 //sim1
 static void info_win_draw (const struct info_win *w)
 {
-    int hstart = COLS - playlist_menu_width()/2 - 9;
+    int hstart = COLS - playlist_menu_width()/2 - mixer_bar_width()/2 + 1;
 
 	assert (w != NULL);
 
 	if (!w->too_small) {
 		info_win_draw_static_elements (w);
 		info_win_draw_state (w);
-		info_win_draw_time (w);
-		info_win_draw_block (w);
-		info_win_draw_title (w);
+		//info_win_draw_time (w);
+		//info_win_draw_block (w);
+		//info_win_draw_title (w);
 		info_win_draw_options_state (w);
-		info_win_draw_status (w);
+		//info_win_draw_status (w);
 		info_win_draw_files_in_queue (w);
-		info_win_draw_files_time (w);
-		info_win_draw_bitrate (w);
-		info_win_draw_rate (w);
+		//info_win_draw_files_time (w);
+		//info_win_draw_bitrate (w);
+		//info_win_draw_rate (w);
 
 		if (w->in_entry)
 			entry_draw (&w->entry, w->win, 1, 0);
@@ -3702,7 +3717,7 @@ static void info_win_resize (struct info_win *w)
 	mvwin (w->win, LINES - LINES_INFO_WIN, 0);
 	werase (w->win);
 
-	bar_resize (&w->mixer_bar, 20);
+	bar_resize (&w->mixer_bar, mixer_bar_width());
 	bar_resize (&w->time_bar, COLS - 4);
 	info_win_set_block_title (w);
 
