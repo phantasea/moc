@@ -2867,7 +2867,7 @@ static void info_win_draw_files_in_queue (const struct info_win *w)
 {
     int hstart = dir_menu_width()/3*2 - 1;
     if (curr_layout == 2) {
-        hstart = dir_menu_width()/9*8 - 1;
+        hstart = dir_menu_width()/9*8 - 3;
     }
 
 	assert (w != NULL);
@@ -2876,8 +2876,7 @@ static void info_win_draw_files_in_queue (const struct info_win *w)
 		if (w->files_in_queue) {
 			wattrset (w->win, get_color(CLR_STATUS));
             wmove (w->win, 0, hstart);
-            xwprintw (w->win, "[%02d]", w->files_in_queue);
-            //xwprintw (w->win, "[Q:%02d]", w->files_in_queue);
+            xwprintw (w->win, "[Q:%02d]", w->files_in_queue);
 		}
 		else {
 			wattrset (w->win, get_color(CLR_FRAME));
@@ -3205,14 +3204,14 @@ static void info_win_draw_options_state (const struct info_win *w)
 
     int hstart = dir_menu_width()/3 - 1;
     if (curr_layout == 2) {
-        hstart = dir_menu_width()/9*7 - 1;
+        hstart = dir_menu_width()/9*7 - 3;
     }
 
 	//info_win_draw_switch (w, 38, 2, "STEREO", w->state_stereo);
 	//info_win_draw_switch (w, 47, 2, "NET", w->state_net);
-	//info_win_draw_switch (w, 53, 2, "SHUFFLE", w->state_shuffle);
 	//info_win_draw_switch (w, 63, 2, "REPEAT", w->state_repeat);
 	info_win_draw_switch (w, hstart, 0, "[R]", !w->state_next);
+	info_win_draw_switch (w, hstart + 4, 0, "[S]", w->state_shuffle);
 }
 
 static void info_win_make_entry (struct info_win *w, const enum entry_type type)
