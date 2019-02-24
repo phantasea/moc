@@ -2586,7 +2586,7 @@ static void check_term_size (struct main_win *mw, struct info_win *iw)
 	mw->too_small = iw->too_small = COLS < 59 || LINES < 7;
 }
 
-#define BAR_TITLE_LEN 3
+#define BAR_TITLE_LEN 4
 /* Update the title with the current fill. */
 static void bar_update_title (struct bar *b)
 {
@@ -2599,9 +2599,9 @@ static void bar_update_title (struct bar *b)
 		sprintf (b->title, "%*s", b->width, b->orig_title);
 	else {
 		sprintf (b->title, "%*s", b->width - BAR_TITLE_LEN, b->orig_title);
-		strcpy (pct, "100");
+		strcpy (pct, "100%");
 		if (b->filled < 99.99)
-			snprintf (pct, sizeof (pct), "%02.0f%%", b->filled);
+			snprintf (pct, sizeof (pct), "%02.0f%% ", b->filled);
 		strncpy (&b->title[b->width - BAR_TITLE_LEN], pct, strlen (pct));
 	}
 }
@@ -2982,7 +2982,9 @@ static void info_win_draw_time (const struct info_win *w)
 		//add by sim1
 		sec_to_min (time_str, w->curr_time != -1 ? w->curr_time : 0);
 		wattrset (w->win, get_color(CLR_TIME_CURRENT));
-		xmvwaddstr (w->win, 0, COLS-6, time_str);
+		xmvwaddstr (w->win, 0, COLS-8, "[");
+		xmvwaddstr (w->win, 0, COLS-7, time_str);
+		xmvwaddstr (w->win, 0, COLS-2, "]");
 
 		///* time left */
 		//if (w->total_time > 0 && w->curr_time >= 0
@@ -3186,7 +3188,7 @@ static void info_win_draw_switch (const struct info_win *w, const int posx,
 		if (value) {
 			wattrset (w->win, get_color(CLR_STATUS));
             wmove (w->win, posy, posx);
-            xwprintw (w->win, "[%s]", title);
+            xwprintw (w->win, "%s", title);
 		}
 		else {
 			wattrset (w->win, get_color(CLR_FRAME));
@@ -3210,7 +3212,7 @@ static void info_win_draw_options_state (const struct info_win *w)
 	//info_win_draw_switch (w, 47, 2, "NET", w->state_net);
 	//info_win_draw_switch (w, 53, 2, "SHUFFLE", w->state_shuffle);
 	//info_win_draw_switch (w, 63, 2, "REPEAT", w->state_repeat);
-	info_win_draw_switch (w, hstart, 0, "R", !w->state_next);
+	info_win_draw_switch (w, hstart, 0, "[R]", !w->state_next);
 }
 
 static void info_win_make_entry (struct info_win *w, const enum entry_type type)
