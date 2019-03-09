@@ -3202,7 +3202,7 @@ static void info_win_draw_options_state (const struct info_win *w)
 {
 	assert (w != NULL);
 
-    int hstart = dir_menu_width()/3 - 1;
+    int hstart = dir_menu_width()/3 - 2;
     if (curr_layout == 2) {
         hstart = dir_menu_width()/9*7 - 3;
     }
@@ -3211,7 +3211,7 @@ static void info_win_draw_options_state (const struct info_win *w)
 	//info_win_draw_switch (w, 47, 2, "NET", w->state_net);
 	//info_win_draw_switch (w, 63, 2, "REPEAT", w->state_repeat);
 	info_win_draw_switch (w, hstart, 0, "[R]", !w->state_next);
-	info_win_draw_switch (w, hstart + 4, 0, "[S]", w->state_shuffle);
+	info_win_draw_switch (w, hstart + 5, 0, "[S]", w->state_shuffle);
 }
 
 static void info_win_make_entry (struct info_win *w, const enum entry_type type)
