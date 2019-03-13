@@ -998,6 +998,8 @@ static int parse_key (const char *symbol)
 
 	if (strlen(symbol) == 1) {
 		/* Just a regular char */
+        //deleted by sim1
+        #if 0
 		static bool digit_key_warned = false;
 		if (!digit_key_warned && isdigit (symbol[0])) {
 			fprintf (stderr,
@@ -1006,6 +1008,7 @@ static int parse_key (const char *symbol)
 			sleep (5);
 			digit_key_warned = true;
 		}
+        #endif
 		return symbol[0];
 	}
 
