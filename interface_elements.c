@@ -407,7 +407,9 @@ static void entry_draw (const struct entry *e, WINDOW *w, const int posx,
 	wattrset (w, get_color(CLR_ENTRY_TITLE));
 	xwprintw (w, "%s", e->title);
 
-	wattrset (w, get_color(CLR_ENTRY));
+    //mod by sim1
+	//wattrset (w, get_color(CLR_ENTRY));
+	wattrset (w, get_color(CLR_ENTRY_TITLE));
 	len = wcslen(e->text_ucs) - e->display_from;
 
 	text_ucs = (wchar_t *)xmalloc(sizeof(wchar_t) * (len + 1));
@@ -421,11 +423,14 @@ static void entry_draw (const struct entry *e, WINDOW *w, const int posx,
 	text = (char *)xmalloc (len);
 	wcstombs (text, text_ucs, len);
 
-	xwprintw (w, " %-*s", e->width, text);
+    //mod by sim1
+	//xwprintw (w, " %-*s", e->width, text);
+	xwprintw (w, "%-*s", e->width, text);
 
 	/* Move the cursor */
 	wmove (w, posy, e->cur_pos - e->display_from + strwidth(e->title)
-			+ posx + 1);
+			//+ posx + 1);
+			+ posx);  //mod by sim1
 
 	free (text);
 	free (text_ucs);
@@ -438,21 +443,27 @@ static void entry_init (struct entry *e, const enum entry_type type,
 
 	assert (e != NULL);
 
+    //mod by sim1
 	switch (type) {
 		case ENTRY_SEARCH:
-			title = "SEARCH";
+			//title = "SEARCH";
+			title = "/";
 			break;
 		case ENTRY_PLIST_SAVE:
-			title = "SAVE PLAYLIST";
+			//title = "SAVE PLAYLIST";
+			title = "$";
 			break;
 		case ENTRY_GO_DIR:
-			title = "GO";
+			//title = "GO";
+			title = ">";
 			break;
 		case ENTRY_GO_URL:
-			title = "URL";
+			//title = "URL";
+			title = "=>";
 			break;
 		case ENTRY_ADD_URL:
-			title = "ADD URL";
+			//title = "ADD URL";
+			title = "+=";
 			break;
 		case ENTRY_PLIST_OVERWRITE:
 			title = "File exists, overwrite?";
@@ -470,9 +481,11 @@ static void entry_init (struct entry *e, const enum entry_type type,
 	e->file = NULL;
 	e->title = xmalloc (strlen (title) + 2);
 	strcpy (e->title, title);
+    #if 0
 	if (e->title[strlen (e->title) - 1] != ':' &&
 	    e->title[strlen (e->title) - 1] != '?')
 		strcat (e->title, ":");
+    #endif
 	e->width = width - strwidth(title);
 	e->cur_pos = 0;
 	e->display_from = 0;
@@ -3241,7 +3254,14 @@ static void info_win_make_entry (struct info_win *w, const enum entry_type type)
 			history = NULL;
 	}
 
-	entry_init (&w->entry, type, COLS - 4, history, prompt);
+    //mod by sim1 ********************************************
+    int width = dir_menu_width();
+    if (curr_layout == 2) {
+        width = dir_menu_width()/6;
+    }
+	entry_init (&w->entry, type, width - 2, history, prompt);
+	//entry_init (&w->entry, type, COLS - 4, history, prompt);
+    //mod by sim1 ********************************************
 	w->in_entry = 1;
 	curs_set (1);
 	entry_draw (&w->entry, w->win, 1, 0);
