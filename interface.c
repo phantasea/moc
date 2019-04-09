@@ -2024,11 +2024,15 @@ static void toggle_option (const char *name)
 
 static void toggle_show_time ()
 {
+    //mod by sim1
+    #if 0
 	if (!strcasecmp (options_get_str ("ShowTime"), "yes")) {
 		options_set_str ("ShowTime", "IfAvailable");
 		iface_set_status ("ShowTime: IfAvailable");
 	}
-	else if (!strcasecmp (options_get_str ("ShowTime"), "no")) {
+    #endif
+	//else if (!strcasecmp (options_get_str ("ShowTime"), "no")) {
+	if (!strcasecmp (options_get_str ("ShowTime"), "no")) {
 		options_set_str ("ShowTime", "yes");
 		iface_update_show_time ();
 		ask_for_tags (dir_plist, TAGS_TIME);
