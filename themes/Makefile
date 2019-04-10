@@ -281,15 +281,17 @@ top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
 themesdir = $(pkgdatadir)/themes
-themes_DATA = transparent-background \
-	      example_theme \
-	      nightly_theme \
-	      green_theme \
-	      yellow_red_theme \
-	      black_theme \
-	      moca_theme \
-	      red_theme \
-	      darkdot_theme
+# mod by sim1 for deleting unused themes
+themes_DATA = 
+#         transparent-background \
+#	      example_theme \
+#	      nightly_theme \
+#	      green_theme \
+#	      yellow_red_theme \
+#	      black_theme \
+#	      moca_theme \
+#	      red_theme \
+#	      darkdot_theme
 
 EXTRA_DIST = $(themes_DATA)
 all: all-am
