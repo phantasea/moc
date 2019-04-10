@@ -2030,8 +2030,8 @@ static void toggle_show_time ()
 		options_set_str ("ShowTime", "IfAvailable");
 		iface_set_status ("ShowTime: IfAvailable");
 	}
+	else if (!strcasecmp (options_get_str ("ShowTime"), "no")) {
     #endif
-	//else if (!strcasecmp (options_get_str ("ShowTime"), "no")) {
 	if (!strcasecmp (options_get_str ("ShowTime"), "no")) {
 		options_set_str ("ShowTime", "yes");
 		iface_update_show_time ();
