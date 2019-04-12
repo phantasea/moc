@@ -2893,7 +2893,7 @@ static void info_win_draw_files_in_queue (const struct info_win *w)
 		}
 		else {
 			wattrset (w->win, get_color(CLR_FRAME));
-			mvwhline (w->win, 0, hstart, lines.horiz, 4);
+			mvwhline (w->win, 0, hstart, lines.horiz, strlen("[Q:XX]"));
 		}
 	}
 
