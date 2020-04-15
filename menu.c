@@ -54,7 +54,9 @@ static void draw_item (const struct menu *menu, const struct menu_item *mi,
 	assert (title_space > 0);
 	assert (number_space == 0 || number_space >= 2);
 
-	wmove (menu->win, pos, menu->posx);
+	//mod by sim1 : add a space before filename/number
+	//wmove (menu->win, pos, menu->posx);
+	wmove (menu->win, pos, menu->posx+1);
 
 	if (number_space) {
 		if (draw_selected && mi == menu->selected && mi == menu->marked)
@@ -65,8 +67,8 @@ static void draw_item (const struct menu *menu, const struct menu_item *mi,
 			wattrset (menu->win, menu->info_attr_marked);
 		else
 			wattrset (menu->win, menu->info_attr_normal);
-		//mod by simone
-		xwprintw (menu->win, "%*d ", number_space - 1, mi->num + 1);
+		//mod by sim1
+		xwprintw (menu->win, "%0*d ", number_space - 1, mi->num + 1);
 		//xwprintw (menu->win, "%*d • ", number_space - 1, mi->num + 1);
 	}
 
@@ -133,7 +135,7 @@ static void draw_item (const struct menu *menu, const struct menu_item *mi,
 				mi->time ? mi->time : "	 ",
 				mi->format);
 	else if (menu->show_time && mi->time[0])
-		xwprintw (menu->win, "[%5s]", mi->time);
+		xwprintw (menu->win, "[%5s]", mi->time);  //sim1 TODO
 	else if (menu->show_format && mi->format[0])
 		xwprintw (menu->win, "[%3s]", mi->format);
 }
