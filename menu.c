@@ -68,7 +68,7 @@ static void draw_item (const struct menu *menu, const struct menu_item *mi,
 		else
 			wattrset (menu->win, menu->info_attr_normal);
 		//mod by sim1
-		xwprintw (menu->win, "%0*d ", number_space - 1, mi->num + 1);
+		xwprintw (menu->win, "[%0*d] ", number_space - 1, mi->num + 1);
 		//xwprintw (menu->win, "%*d • ", number_space - 1, mi->num + 1);
 	}
 

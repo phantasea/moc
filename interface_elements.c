@@ -2994,7 +2994,7 @@ static void info_win_draw_time (const struct info_win *w)
 		//add by sim1
 		sec_to_min (time_str, w->curr_time != -1 ? w->curr_time : 0);
 		wattrset (w->win, get_color(CLR_TIME_CURRENT));
-		xmvwaddstr (w->win, 0, COLS-8, "[");      //sim1 ???
+		xmvwaddstr (w->win, 0, COLS-8, "[");      //sim1 TODO
 		xmvwaddstr (w->win, 0, COLS-7, time_str);
 		xmvwaddstr (w->win, 0, COLS-2, "]");
 
