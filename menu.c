@@ -54,9 +54,9 @@ static void draw_item (const struct menu *menu, const struct menu_item *mi,
 	assert (title_space > 0);
 	assert (number_space == 0 || number_space >= 2);
 
-	//mod by sim1 : add a space before filename/number
-	//wmove (menu->win, pos, menu->posx);
-	wmove (menu->win, pos, menu->posx+1);
+	wmove (menu->win, pos, menu->posx);
+	//add by sim1 : here we can add a space or special char before filename/number
+    //xwprintw (menu->win, "•");
 
 	if (number_space) {
 		if (draw_selected && mi == menu->selected && mi == menu->marked)
